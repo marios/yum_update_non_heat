@@ -16,4 +16,4 @@ To match *all* computes you can do:
     bash tripleo_upgrade_non_heat_main.sh  "compute"
 
 The update script itself does nothing at present, so this should be safe enough
-to run against your setup; NOTE however the nodes are nova rebooted at the end
+to run against your setup; **NOTE** however the nodes are nova rebooted at the end
