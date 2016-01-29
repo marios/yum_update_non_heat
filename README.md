@@ -1,9 +1,10 @@
 # yum_update_non_heat
 
 There are two files here: one is the script which will be executed on the
-node itself, and the other is the 'main' script which attempts to introduce
-some kind of update workflow. The main script takes one string parameter to
-determine the node(s) the script will be delivered to and then executed on.
+node itself, called `tripleo_upgrade_yum_update_non_heat.sh` and the other is
+the 'main' script the operator runs called `tripleo_upgrade_non_heat_main.sh`.
+The main script takes one string parameter to determine the node(s) the script
+will be delivered to and then executed on.
 
 The param is used to grep the output of nova list and a list of nodes can be
 specified like:
