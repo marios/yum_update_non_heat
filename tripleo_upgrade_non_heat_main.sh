@@ -1,9 +1,9 @@
 #!/bin/bash
 
-SCRIPT_PATH=$HOME
+SCRIPT_PATH=${SCRIPT_PATH:-$HOME}
 YUM_UPDATE_SCRIPT=tripleo_upgrade_yum_update_non_heat.sh
-DEBUG=1
-REBOOT_SLEEP_TIME=10
+DEBUG=${DEBUG:-1}
+REBOOT_SLEEP_TIME=${REBOOT_SLEEP_TIME:-10}
 
 function log {
     if [[ $DEBUG == 1 ]]; then
@@ -21,7 +21,8 @@ function confirm_script {
     results=$(ssh heat-admin@$node_ip "sudo ls -l /root/$YUM_UPDATE_SCRIPT")
     permissions=$(echo $results | awk '{print $1}')
     if ! [[ "-rwxr--r--," =~ $permissions ]]; then
-        log "ERROR"
+        log "ERROR can't find script $YUM_UPDATE_SCRIPT on $node_ip"
+        exit 1
     else
         log "OK update script delivered to $node_ip, ls -l: $results"
     fi
@@ -29,12 +30,16 @@ function confirm_script {
 
 function deliver_script {
     node_ip=$1
-    scp ~/$YUM_UPDATE_SCRIPT heat-admin@$node_ip:/home/heat-admin/$YUM_UPDATE_SCRIPT
-    ssh heat-admin@$node_ip "sudo cp /home/heat-admin/$YUM_UPDATE_SCRIPT \
-                                     /root/$YUM_UPDATE_SCRIPT ; \
-                             sudo chmod 744 /root/$YUM_UPDATE_SCRIPT ; "
-    check_file=$(ssh heat-admin@$node_ip "sudo ls -l /root/$YUM_UPDATE_SCRIPT")
-
+    if [[ -f $SCRIPT_PATH/$YUM_UPDATE_SCRIPT ]]; then
+        scp $SCRIPT_PATH/$YUM_UPDATE_SCRIPT heat-admin@$node_ip:/home/heat-admin/$YUM_UPDATE_SCRIPT
+        ssh heat-admin@$node_ip "sudo cp /home/heat-admin/$YUM_UPDATE_SCRIPT \
+                                         /root/$YUM_UPDATE_SCRIPT ; \
+                                 sudo chmod 744 /root/$YUM_UPDATE_SCRIPT ; "
+        check_file=$(ssh heat-admin@$node_ip "sudo ls -l /root/$YUM_UPDATE_SCRIPT")
+    else
+        log "ERROR cannot find $SCRIPT_PATH/$YUM_UPDATE_SCRIPT exiting"
+        exit 1
+    fi
 }
 
 function run_script {
